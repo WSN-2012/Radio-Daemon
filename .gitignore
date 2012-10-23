@@ -1,5 +1,6 @@
-#Project specific ignore 
+# Project specific ignore 
 build/
+test/
 .DS_Store
 
 # Compiled Object files
