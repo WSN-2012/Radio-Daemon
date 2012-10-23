@@ -15,3 +15,5 @@ build/
 *.la
 *.a
 
+# Temporary files
+*~
