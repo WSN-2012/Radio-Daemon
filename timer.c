@@ -8,22 +8,22 @@ Created on 22nd October 2012
 
 int timer(time_t start_time, time_t end_time)
 {
-	int ref, flag;
+	int ref1, ref2, flag1, flag2;
 	time_t current_time;
 	
 	current_time = time(NULL);
 	
-	if (start_time > current_time)
+	if (current_time < start_time)
 	{
-		ref = 0;
-		flag = 0;
+		ref1 = 0;
+		flag1 = 0;
 		return -1;
 	}
 	else
 	{
-		flag = 1;
+		flag1 = 1;
 		
-		if (ref + flag == 1)
+		if (ref1 + flag1 == 1)
 		{
 			return 1;
 		}
@@ -32,24 +32,28 @@ int timer(time_t start_time, time_t end_time)
 			return -1;
 		}
 		
-		ref = flag;
+		ref1 = flag1;
+	}
 		
-		if (end_time > current_time)
-		{
-			flag = 0;
-			
-			if (ref + flag == 1)
+	if (current_time < end_time)
+	{
+		ref2 = 1;
+		flag2 = 1;
+	}		
+	else 
+    {
+    	flag2 = 0;
+
+		if (ref2 + flag2 == 1)
 			{
 				return 0;
 			}
-			else
+		else
 			{
 				return -1;
 			}
 			
-			ref = flag;
-		}
-
+		ref2 = flag2;
 	}
 	
 }
