@@ -7,11 +7,10 @@ CC=gcc
 CFLAGS=-Wall
 
 # This will be called when running "make"
-all: clean
+all: 
+	clean
 	mkdir -p $(BUILD_PATH)
-	$(CC) $(CFLAGS) d.c -o $(BUILD_PATH)/$(BUILD_NAME)
-
-
+	$(CC) $(CFLAGS) radio_daemon.c sdb.c timer.c -o $(BUILD_PATH)/$(BUILD_NAME)
 
 # This will be called when running "make clean"
 clean:
