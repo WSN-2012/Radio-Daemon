@@ -17,7 +17,7 @@ int exec_callback(void* user_param,int columns,char** result,char** names){
 }
 
 /*Function that looks up a timeslot for a given location at the present time and stores the timeslot info in the timeslot_t referenced by its second parameter*/
-int get_timeslot(int location, timeslot_t* tslot, int min_freq, int max_freq){
+int get_timeslot(int location, timeslot_t* tslot){
 	sqlite3* db;
 	int retval;
 	char query[QUERY_LEN];
