@@ -243,3 +243,12 @@ void main()
 	}
 }
 #endif
+
+void main()
+{
+	while(1)
+	{
+		sleep(1);
+		printf("child\n");
+	}
+}

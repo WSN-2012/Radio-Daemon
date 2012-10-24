@@ -26,12 +26,12 @@ void init_daemon()
 	int i; 
 
 //Father process quits
-	if(pid = fork()) 
+	if (pid = fork()) 
 	{
 		exit(0);
 	}
 //Fork fails
-	else if(pid < 0)
+	else if (pid < 0)
 	{
 		exit(1); 
 	}
@@ -40,17 +40,17 @@ void init_daemon()
 	setsid(); 
 
 //Prevent child getting control of terminal
-	if(pid = fork()) 
+	if (pid = fork()) 
 	{
 		exit(0);
 	}
-	else if(pid < 0)
+	else if (pid < 0)
 	{
 		exit(1); 
 	} 
 
 //Close opened file descriptor
-	for(i = 0; i < NOFILE; i++) 
+	for (i = 0; i < NOFILE; i++) 
 	{ 
 		close(i); 
 	} 
@@ -66,6 +66,8 @@ int main()
 { 
 	int gateway_geolocation; 
 	int timer_return;
+	int pid;
+	char command[20];
 	struct timeslot_t* timeslot;
 
 	gateway_geolocation = GWGEO;
@@ -73,18 +75,26 @@ int main()
 	signal(SIGCHLD, SIG_IGN); 	
 	init_daemon(); 
 
-	while(1) 
+	while (1) 
 	{ 
 		get_timeslot(gateway_geolocation, timeslot);
 		timer_return = timer(timeslot->start_time, timeslot->stop_time);
 
-		if(timer_return == 1)
+//Establish radiotunnel
+		if (timer_return == 1)
 		{
-			;//establish radiotunnel
+			if (pid = fork() == 0)
+			{
+				break;
+				;
+			}
+			
 		}
-		else if(timer_return == 0)
+//Destroy radiotunnel
+		else if (timer_return == 0)
 		{
-			;//destroy radiotunnel
+			sprintf(command, "kill %d", pid);
+			system(command);
 		}
 		
 	} 
