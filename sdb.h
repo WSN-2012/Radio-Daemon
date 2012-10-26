@@ -22,12 +22,12 @@ struct timeslot {
 	int frequency;
 	int is_changed;
 };
-typedef struct timeslot timeslot_t;
+typedef struct timeslot* timeslot_t;
 
 /*Function definitions*/
 int exec_callback(void* user_param,int columns,char** result,char** names);
 
-int get_timeslot(int location, timeslot_t* tslot);
+int get_timeslot(int location, timeslot_t tslot);
 
 
 #endif
