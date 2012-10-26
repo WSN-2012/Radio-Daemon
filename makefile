@@ -4,13 +4,12 @@ BUILD_NAME=daemon
 
 # Building variables
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-Wall -lsqlite3 
 
 # This will be called when running "make"
-all: 
-	clean
+all: clean
 	mkdir -p $(BUILD_PATH)
-	$(CC) $(CFLAGS) radio_daemon.c sdb.c timer.c -o $(BUILD_PATH)/$(BUILD_NAME)
+	$(CC) $(CFLAGS) radio_daemon.c timer.c -o $(BUILD_PATH)/$(BUILD_NAME) -L/usr/lib/i386-linux-gnu/
 
 # This will be called when running "make clean"
 clean:
