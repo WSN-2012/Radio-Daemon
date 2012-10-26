@@ -20,7 +20,7 @@ int get_timeslot(int location, timeslot_t tslot){
 	sqlite3* db;
 	int retval;
 	char query[QUERY_LEN];
-	t->is_changed = 0;
+	tslot->is_changed = 0;
 
 	/*Insert location into the sql query string*/
 	sprintf(query, SQL_SELECT, location);
@@ -54,10 +54,15 @@ int get_timeslot(int location, timeslot_t tslot){
 	printf("Got is_changed: %d",tslot->is_changed);
 	printf("\n");
 
-	if(t->is_changed)
+	if(tslot->is_changed)
 		return 0;
 	else
 		return 1;
 
 }
 
+int main(int argc, char** argv){
+	struct timeslot ts;
+	printf("Function exit code: %d\n", get_timeslot(3, &ts));
+	return 0;
+}
