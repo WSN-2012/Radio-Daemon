@@ -1,5 +1,3 @@
-/*NOTE: FUNCTION DOES NOT HANDLE QUERY THAT RETURNS EMPTY RESULT WELL*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sqlite3.h>
@@ -12,6 +10,7 @@ int exec_callback(void* user_param,int columns,char** result,char** names){
 	t->start_time = (time_t)atoi(result[1]);
 	t->stop_time = (time_t)atoi(result[2]);
 	t->frequency = atoi(result[0]);
+	t->is_changed = 1;
 
 	return 0;
 }
@@ -21,6 +20,7 @@ int get_timeslot(int location, timeslot_t* tslot){
 	sqlite3* db;
 	int retval;
 	char query[QUERY_LEN];
+	t->is_changed = 0;
 
 	/*Insert location into the sql query string*/
 	sprintf(query, SQL_SELECT, location);
@@ -51,8 +51,13 @@ int get_timeslot(int location, timeslot_t* tslot){
 	printf("\n");
 	printf("Got frequency: %d",tslot->frequency);
 	printf("\n");
+	printf("Got is_changed: %d",tslot->is_changed);
+	printf("\n");
 
-	return 0;
+	if(t->is_changed)
+		return 0;
+	else
+		return 1;
 
 }
 
