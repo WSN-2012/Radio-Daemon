@@ -9,12 +9,13 @@ Created on 22nd October 2012
 #include <sys/stat.h> 
 #include <stdio.h> 
 #include <stdlib.h>
+#include <sqlite3.h>
 
 #include "sdb.h"
 
 #ifndef MAIN 
 #define NOFILE 3
-#define GWGEO 1234 
+#define GWGEO 2
 #endif
 
 int timer(time_t start_time, time_t end_time);
@@ -68,7 +69,9 @@ int main()
 	int timer_return;
 	int pid;
 	char command[20];
-	struct timeslot_t* timeslot;
+	struct timeslot timeslot;
+	time_t t;
+	FILE *fp;
 
 	gateway_geolocation = GWGEO;
 //Ignore child ending signal, avoiding zombie process
@@ -77,8 +80,8 @@ int main()
 
 	while (1) 
 	{ 
-		get_timeslot(gateway_geolocation, timeslot);
-		timer_return = timer(timeslot->start_time, timeslot->stop_time);
+		get_timeslot(gateway_geolocation, &timeslot);
+		timer_return = timer(timeslot.start_time, timeslot.stop_time);
 
 //Establish radiotunnel
 		if (timer_return == 1)
@@ -86,7 +89,13 @@ int main()
 			if (pid = fork() == 0)
 			{
 				break;
-				;
+				if((fp = fopen("/tmp/test1.log", "a")) >= 0) 
+				{ 
+					t = time(0); 
+					fprintf(fp, "Child here at %s\n", asctime(localtime(&t)) ); 
+					fclose(fp); 	
+				} 
+
 			}
 			
 		}

@@ -2,13 +2,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sqlite3.h>
 
+#include <sqlite3.h>
 #include "sdb.h"
 
 /*Callback function for sqlite3_exec. Stores query result in a timeslot_t*/
 int exec_callback(void* user_param,int columns,char** result,char** names){
-	timeslot_t* t = (timeslot_t *) user_param;
+	timeslot_t t = (timeslot_t) user_param;
 	t->start_time = (time_t)atoi(result[1]);
 	t->stop_time = (time_t)atoi(result[2]);
 	t->frequency = atoi(result[0]);
@@ -17,7 +17,7 @@ int exec_callback(void* user_param,int columns,char** result,char** names){
 }
 
 /*Function that looks up a timeslot for a given location at the present time and stores the timeslot info in the timeslot_t referenced by its second parameter*/
-int get_timeslot(int location, timeslot_t* tslot){
+int get_timeslot(int location, timeslot_t tslot){
 	sqlite3* db;
 	int retval;
 	char query[QUERY_LEN];

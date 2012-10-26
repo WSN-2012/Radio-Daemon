@@ -1,6 +1,7 @@
 #include <stdio.h> 
 #include <stdlib.h>
 #include <time.h>
+#include <errno.h>
 //#include <GetCurrentTimeString.h>
 //#include <dos.h>
 #if(0)
@@ -244,11 +245,32 @@ void main()
 }
 #endif
 
+#if(0)
 void main()
 {
-	while(1)
-	{
+	//while(1)
+	//{
 		sleep(1);
+		system("/mnt/sharepoint/test/radiotunnel/radiotunnel vhf radio0 10.0.0.1/24 /dev/pts/4");
 		printf("child\n");
-	}
+	//}
 }
+#endif
+
+ 
+
+void main(int argc, char *argv[]) 
+{ 
+   int i; 
+
+   printf("Command line arguments:\n"); 
+   for (i=0; i<argc; i++) 
+      printf("[%2d] : %s\n", i, argv[i]); 
+
+   printf("About to exec child with arg1 arg2 ...\n"); 
+   execv("/mnt/sharepoint/build/subtest", argv); 
+
+   perror("exec error"); 
+
+   exit(1); 
+} 
