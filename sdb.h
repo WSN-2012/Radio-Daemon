@@ -20,6 +20,7 @@ struct timeslot {
 	time_t start_time;
 	time_t stop_time;
 	int frequency;
+	int is_changed;
 };
 typedef struct timeslot* timeslot_t;
 
