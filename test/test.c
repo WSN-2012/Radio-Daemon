@@ -245,20 +245,23 @@ void main()
 }
 #endif
 
-#if(0)
+#if(1)
 void main()
 {
 	//while(1)
 	//{
-		sleep(1);
-		system("/mnt/sharepoint/test/radiotunnel/radiotunnel vhf radio0 10.0.0.1/24 /dev/pts/4");
-		printf("child\n");
+		//sleep(1);
+		//system("/mnt/sharepoint/test/radiotunnel/radiotunnel vhf radio0 10.0.0.1/24 /dev/pts/4");
+		long sec = -1217768476;
+		time_t t;
+		t = sec;
+		printf("%s\n", asctime(localtime(&t)));
 	//}
 }
 #endif
 
  
-
+#if(0)
 void main(int argc, char *argv[]) 
 { 
    int i; 
@@ -274,3 +277,4 @@ void main(int argc, char *argv[])
 
    exit(1); 
 } 
+#endif

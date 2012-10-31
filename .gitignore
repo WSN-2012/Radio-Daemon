@@ -2,6 +2,8 @@
 build/
 test/
 .DS_Store
+dtest.c
+radiotunnel_vhf-event.log
 
 # Compiled Object files
 *.slo
