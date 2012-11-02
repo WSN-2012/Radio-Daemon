@@ -3,6 +3,9 @@ build/
 test/
 .DS_Store
 nbproject/
+dtest.c
+radiotunnel_vhf-event.log
+
 
 # Compiled Object files
 *.slo
