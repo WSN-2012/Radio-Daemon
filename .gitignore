@@ -2,6 +2,7 @@
 build/
 test/
 .DS_Store
+nbproject/
 
 # Compiled Object files
 *.slo
