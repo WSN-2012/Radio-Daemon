@@ -1,8 +1,8 @@
 /*
- * uhx1_commander.c
+ * freq_changer.c
  *
- *  Created on: Jul 6, 2012
- *      Author: alpsayin
+ *  Created on: Nov 1, 2012
+ *      Author: Andreas Torbiörnsson
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,19 +27,21 @@
 #include "uhx1_commander.h"
 #include "util.h"
 #include "datacollection.h"
+#include "freq_changer.h"
 
 int freq_changer(int target_freq, char* device){
     char* uhx1_readback;
-    int retval = 1;
     
     serial_openSerialPort(device, B115200, 50000, 50000);
-    uhx1_readback = uhx1_loadChannel(target_freq);	serial_closeSerialPort();
-    if(strncmp(uhx1_readback, "OK", 2)){
+    
+    uhx1_readback = uhx1_loadChannel(target_freq);
+    if(strncmp(uhx1_readback, RESPONSE_OK, 2)){
         printf("\nError setting frequency for channel\n");
         serial_closeSerialPort();
-        return 1;
+        return ERROR_CODE;
     }
-    uhx1_setCh(1);
+    
+    uhx1_setCh(CHANNEL);
     serial_closeSerialPort();
-    return 0;
+    return OK_CODE;
 }
