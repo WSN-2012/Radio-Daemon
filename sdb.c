@@ -38,7 +38,7 @@ int get_timeslot(int location, timeslot_t tslot){
 	if(retval!=SQLITE_OK){
 		perror("\nSomething went wrong when querying. SQL Error Code: \n");
 		printf("%d", retval);
-		return 1;
+		return 2;
 	}
 
 	/*Close database connection*/
@@ -57,7 +57,7 @@ int get_timeslot(int location, timeslot_t tslot){
 	if(tslot->is_changed)
 		return 0;
 	else
-		return 1;
+		return 3;
 
 }
 

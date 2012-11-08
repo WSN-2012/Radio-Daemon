@@ -95,18 +95,17 @@ int main()
 	int gateway_geolocation; 
 	int timer_return;
 	int pid;
+	int cpid;
 	int ref1, ref2, flag1, flag2;
 	int frequency;
 	char command[20];
-	char serial_device[30];
+	char serial_device[30] = SERDEV;
 	struct timeslot timeslot;
-	time_t t;
 	time_t current_time;
 	time_t start_time, end_time;
 	FILE *fp;
 
 	gateway_geolocation = GWGEO;
-	*serial_device = SERDEV;
 
 	while (1) 
 	{ 
@@ -161,22 +160,63 @@ int main()
 			ref2 = flag2;
 		}
 
+		if((fp = fopen("/tmp/timerlog.log", "a")) >= 0) 
+			{  
+				fprintf(fp, "current time: %s(number of secs: %d)\n starttime(number of secs: %d)\n endtime(number of secs: %d)\n frequency: %d\n get_timeslot_return: %d\n timer_return: %d\n\n", asctime(localtime(&current_time)), current_time, start_time, end_time, frequency, retval, timer_return); 
+				fclose(fp); 	
+			} 
+
 //Establish radiotunnel
 		if (timer_return == 1)
 		{
-			if (pid = fork() == 0)
-			{
-				break;
-				freq_changer(frequency, serial_device);
-				execl("/mnt/sharepoint/test/radiotunnel/radiotunnel", "/mnt/sharepoint/test/radiotunnel/radiotunnel", "vhf", "radio0", "10.0.0.1/24", SERDEV, NULL);
-			}
+			pid = fork();
 			
+			if (pid == 0)
+			{
+				//int retval_f = freq_changer(frequency, serial_device)；
+				int retval_e = execl("/mnt/sharepoint/test/radiotunnel/radiotunnel", "/mnt/sharepoint/test/radiotunnel/radiotunnel", "vhf", "radio0", "10.0.0.1/24", SERDEV, NULL);
+			}
+
+			if (pid > 0)
+			{
+				if ((fp = fopen("/tmp/forklog.log", "a")) >= 0) 
+				{  
+					fprintf(fp, "Establishes radiotunnel at %s\npid of radiotunnel is %d, pid of daemon is %d\n\n", asctime(localtime(&current_time)), pid, getpid()); 
+					fclose(fp); 				
+				}
+			}
+
+			if (pid < 0)
+			{
+				if ((fp = fopen("/tmp/forklog.log", "a")) >= 0) 
+				{  
+					fprintf(fp, "forking failed at %s\n", asctime(localtime(&current_time))); 
+					fclose(fp); 				
+				}
+			}
+
 		}
+
 //Destroy radiotunnel
 		else if (timer_return == 0)
 		{
-			sprintf(command, "%d", pid);		
-			execlp("kill", "kill", command, NULL);
+			cpid = fork();
+
+			if (cpid == 0)
+			{
+				sprintf(command, "%d", pid);		
+				execlp("kill", "kill", command, NULL);
+			}
+
+			if (cpid > 0)
+			{
+				if ((fp = fopen("/tmp/test1.log", "a")) >= 0) 
+				{  
+					fprintf(fp, "Destroy radiotunnel at %s\npid of kill is %d, pid of daemon is %d\n\n", asctime(localtime(&current_time)), cpid, getpid()); 
+					fclose(fp); 				
+				}
+			}
+
 		}
 		
 	} 

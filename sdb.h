@@ -7,10 +7,10 @@ Created on 19th October 2012
 #define SDB_H_
 
 /*Path to the sqlite spectrum database file*/
-#define DB_PATH "./sdb.sqlite3"
+#define DB_PATH "/mnt/sharepoint/sdb.sqlite3"
 
 /*SQL Query string for getting a timeslot and frequency*/
-#define SQL_SELECT "SELECT frequency, strftime('%%s',start_time), strftime('%%s',stop_time) FROM KistaSDB_2012 WHERE location = %d AND strftime('%%s', 'now') < strftime('%%s', stop_time) ORDER BY start_time ASC LIMIT 1"
+#define SQL_SELECT "SELECT frequency, strftime('%%s',start_time, 'utc'), strftime('%%s',stop_time, 'utc') FROM KistaSDB_2012 WHERE location = %d AND strftime('%%s', 'now','localtime') <= strftime('%%s', stop_time) ORDER BY start_time ASC LIMIT 1"
 
 /*Max length of the SQL Query string*/
 #define QUERY_LEN 250
