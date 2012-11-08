@@ -110,7 +110,7 @@ int main()
 	while (1) 
 	{ 
 		sleep(1);
-		get_timeslot(gateway_geolocation, &timeslot);
+		int retval = get_timeslot(gateway_geolocation, &timeslot);
 		current_time = time(NULL);
 		start_time = timeslot.start_time;
 		end_time = timeslot.stop_time;
