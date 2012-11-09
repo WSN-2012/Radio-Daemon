@@ -4,6 +4,7 @@ test/
 .DS_Store
 nbproject/
 dtest.c
+rd.c
 radiotunnel_vhf-event.log
 a.out
 
