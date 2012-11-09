@@ -21,8 +21,11 @@
 #define COMMAND_RSSI ":RSSI\x0D"
 #define COMMAND_DUMP ":DUMP\x0D"
 #define COMMAND_NEWLINE "\x0D"
+#define COMMAND_START ":START"
+#define COMMAND_STEP ":STEP"
 #define RESPONSE_OK "OK"
 #define CHANNEL_SPACING 25
+#define DEF_STEP 1
 
 char* uhx1_readMode();
 char* uhx1_setMode(char* mode);
@@ -33,6 +36,8 @@ void uhx1_setPow(int power);
 int uhx1_readRSSI();
 char* uhx1_dumpMemory();
 char* uhx1_loadChannel(int targetFrequencyKhz);
+char* uhx1_step(int step);
+char* uhx1_startChan(int startFrequency)
 
 
 #endif /* UHX1_COMMANDER_H_ */

@@ -15,7 +15,14 @@ int exec_callback(void* user_param,int columns,char** result,char** names){
 	return 0;
 }
 
-/*Function that looks up a timeslot for a given location at the present time and stores the timeslot info in the timeslot_t referenced by its second parameter*/
+/*Function that looks up a timeslot for a given location at the present time and stores the timeslot info in the timeslot_t referenced by its second parameter
+ *Parameters:
+ *      *First parameter is an integer representening the location
+ *      *Second parameter is a pointer to the timeslot that information is to be stored in
+ *Returns:
+ *      0 if a new times have been stored in timeslot_t
+ *      1 if timeslot hasn't changed or can't be trusted
+ */
 int get_timeslot(int location, timeslot_t tslot){
 	sqlite3* db;
 	int retval;
@@ -60,9 +67,3 @@ int get_timeslot(int location, timeslot_t tslot){
 		return 1;
 
 }
-
-//int main(int argc, char** argv){
-//	struct timeslot ts;
-//	printf("Function exit code: %d\n", get_timeslot(3, &ts));
-//	return 0;
-//}

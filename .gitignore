@@ -5,7 +5,7 @@ test/
 nbproject/
 dtest.c
 radiotunnel_vhf-event.log
-
+a.out
 
 # Compiled Object files
 *.slo
