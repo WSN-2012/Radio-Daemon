@@ -32,8 +32,10 @@
 int freq_changer(int target_freq, char* device){
     char* uhx1_readback;
     
+    //Open the serial port for communicating with uhx1 device
     serial_openSerialPort(device, B115200, 50000, 50000);
     
+    //Loads channel 1 on the uhx1 with the target frequency
     uhx1_readback = uhx1_loadChannel(target_freq);
     if(strncmp(uhx1_readback, RESPONSE_OK, 2)){
         printf("\nError setting frequency for channel\n");
@@ -41,6 +43,7 @@ int freq_changer(int target_freq, char* device){
         return ERROR_CODE;
     }
     
+    //Jumps to channel 1 and exit safely
     uhx1_setCh(CHANNEL);
     serial_closeSerialPort();
     return OK_CODE;

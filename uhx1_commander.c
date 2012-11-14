@@ -3,6 +3,8 @@
  *
  *  Created on: Jul 6, 2012
  *      Author: alpsayin
+ *  Updated on: Nov 5, 2012
+ *      Updater: andreastorbiornsson
  */
 
 #include <stdio.h>
@@ -111,7 +113,7 @@ int uhx1_readRSSI() {
 }
 
 char* uhx1_dumpMemory() {
-    int numOfBytes, i, mark = 0;
+    int numOfBytes, i;
     serial_transmitSerialData(COMMAND_DUMP, strlen(COMMAND_DUMP));
     for (i = 0; i < 4 * (16 * 3 + 1) + 1; i++) {
         do {
@@ -143,4 +145,42 @@ char* uhx1_loadChannel(int targetFrequencyKhz) {
     return buffer;
 }
 
+char* uhx1_startChan(int startFrequency){
+    int length, nValue;
+    nValue = startFrequency / CHANNEL_SPACING;
+    if(startFrequency % CHANNEL_SPACING){
+        strcpy(buffer, "DIV ERROR");
+        return buffer;
+    }
+    length = sprintf(buffer, "%s %d%s", COMMAND_START, nValue, COMMAND_NEWLINE);
+    serial_transmitSerialData(buffer, length);
+    if (read(serial_getSerialPortFd(), &buffer, 3) == 3) //one byte is CR
+    {
+        if (!strncmp(RESPONSE_OK, buffer, 2)) {
+            strcpy(buffer, "OK");
+        } else {
+            strcat(buffer, "-UKNOWN");
+        }
+    } else {
+        strcpy(buffer, "N/A");
+    }
+    return buffer;
+}
+
+char* uhx1_step(int step){
+    int length;
+    length = sprintf(buffer, "%s %d%s", COMMAND_STEP, step, COMMAND_NEWLINE);
+    serial_transmitSerialData(buffer, length);
+    if (read(serial_getSerialPortFd(), &buffer, 3) == 3) //one byte is CR
+    {
+        if (!strncmp(RESPONSE_OK, buffer, 2)) {
+            strcpy(buffer, "OK");
+        } else {
+            strcat(buffer, "-UKNOWN");
+        }
+    } else {
+        strcpy(buffer, "N/A");
+    }
+    return buffer;
+}
 
