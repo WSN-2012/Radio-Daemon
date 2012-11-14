@@ -37,7 +37,7 @@ int uhx1_readRSSI();
 char* uhx1_dumpMemory();
 char* uhx1_loadChannel(int targetFrequencyKhz);
 char* uhx1_step(int step);
-char* uhx1_startChan(int startFrequency)
+char* uhx1_startChan(int startFrequency);
 
 
 #endif /* UHX1_COMMANDER_H_ */

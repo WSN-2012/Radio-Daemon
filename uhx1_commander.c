@@ -113,7 +113,7 @@ int uhx1_readRSSI() {
 }
 
 char* uhx1_dumpMemory() {
-    int numOfBytes, i, mark = 0;
+    int numOfBytes, i;
     serial_transmitSerialData(COMMAND_DUMP, strlen(COMMAND_DUMP));
     for (i = 0; i < 4 * (16 * 3 + 1) + 1; i++) {
         do {
