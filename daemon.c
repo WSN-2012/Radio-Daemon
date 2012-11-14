@@ -34,7 +34,7 @@ Created on 22nd October 2012
 #ifndef MAIN 
 #define NOFILE 3
 #define GWGEO 2
-#define SERDEV "/dev/pts/4"
+#define SERDEV "/dev/pts/2"
 #endif
 
 //init_daemon is used to initialize a daemon process running in the system background, which can hardly be affected by the foreground user. 
@@ -64,6 +64,7 @@ void init_daemon()
 	setsid(); 
 
 //Prevent child getting control of terminal
+
 	if (pid = fork()) 
 	{
 		exit(0);
@@ -96,6 +97,7 @@ int main()
 	int timer_return;
 	int pid;
 	int cpid;
+	int retval_e;
 	int ref1, ref2, flag1, flag2;
 	int frequency;
 	char command[20];
@@ -174,7 +176,8 @@ int main()
 			if (pid == 0)
 			{
 				//int retval_f = freq_changer(frequency, serial_device)；
-				int retval_e = execl("/mnt/sharepoint/test/radiotunnel/radiotunnel", "/mnt/sharepoint/test/radiotunnel/radiotunnel", "vhf", "radio0", "10.0.0.1/24", SERDEV, NULL);
+				retval_e = execl("/mnt/sharepoint/test/radiotunnel/radiotunnel", "/mnt/sharepoint/test/radiotunnel/radiotunnel", "vhf", "radio0", "10.0.0.1/24", SERDEV, NULL);
+				//execlp("gnome-terminal", "gnome-terminal", "-x", "/mnt/sharepoint/test/radiotunnel/radiotunnel", "vhf", "radio0", "10.0.0.1/24", SERDEV, NULL);
 			}
 
 			if (pid > 0)

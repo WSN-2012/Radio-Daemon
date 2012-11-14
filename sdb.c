@@ -45,14 +45,14 @@ int get_timeslot(int location, timeslot_t tslot){
 	sqlite3_close(db);
 
 	/*Printing results for debugging purposes*/
-	printf("Got start time: %s",asctime(localtime(&(tslot->start_time))));
+//	printf("Got start time: %s",asctime(localtime(&(tslot->start_time))));
 //	printf("\n");
-	printf("Got stop time: %s",asctime(localtime(&(tslot->stop_time))));
+//	printf("Got stop time: %s",asctime(localtime(&(tslot->stop_time))));
 //	printf("\n");
-	printf("Got frequency: %d",tslot->frequency);
-	printf("\n");
-	printf("Got is_changed: %d",tslot->is_changed);
-	printf("\n");
+//	printf("Got frequency: %d",tslot->frequency);
+//	printf("\n");
+//	printf("Got is_changed: %d",tslot->is_changed);
+//	printf("\n");
 
 	if(tslot->is_changed)
 		return 0;
