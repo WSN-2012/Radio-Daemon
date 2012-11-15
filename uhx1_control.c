@@ -36,11 +36,11 @@ int maxChannel = 127-16;
 
 int uhx1_setupChannels(int startFrequencyKhz, int step){
     
-    buffer = uhx1_startChan(startFrequencyKhz);
+    uhx1_startChan(startFrequencyKhz);
     if(!strncmp("OK", buffer, 2)){
         return 1;
     }
-    buffer = uhx1_step(step);
+    uhx1_step(step);
     if(!strncmp("OK", buffer, 2)){
         return 2;
     }
