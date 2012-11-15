@@ -8,17 +8,12 @@
 #ifndef UHX1_CONTROL_H
 #define	UHX1_CONTROL_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+#define MAX_CHANNEL 111
 
 int uhx1_setupChannels(int startFrequencyKhz, int step);
 int uhx1_changeFrequency(int targetFrequency);
 
 
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* UHX1_CONTROL_H */
 

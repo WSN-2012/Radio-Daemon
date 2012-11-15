@@ -32,7 +32,6 @@
 
 char buffer[15];
 int startFrequency = 144000;
-int maxChannel = 127-16;
 char* device = "/dev/ttyUSB0";
 
 int uhx1_setupChannels(int startFrequencyKhz, int step){
@@ -59,7 +58,7 @@ int uhx1_changeFrequency(int targetFrequency){
     //Open the serial port for communicating with uhx1 device
     serial_openSerialPort(device, B115200, 50000, 50000);
     steps = (targetFrequency-startFrequency)/CHANNEL_SPACING;
-    if((targetFrequency % CHANNEL_SPACING) || steps < 0 || steps > maxChannel){
+    if((targetFrequency % CHANNEL_SPACING) || steps < 0 || steps > MAX_CHANNEL){
         serial_closeSerialPort();
         return 1;
     }
