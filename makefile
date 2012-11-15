@@ -9,7 +9,7 @@ CFLAGS=-Wall
 # This will be called when running "make"
 all: clean
 	mkdir -p $(BUILD_PATH)
-	$(CC) $(CFLAGS) test20121112.c sdb.c devtag-allinone.c lock.c printAsciiHex.c serial.c util.c datacollection.c freq_changer.c uhx1_commander.c -o $(BUILD_PATH)/$(BUILD_NAME) -lsqlite3 -L/usr/lib/i386-linux-gnu/
+	$(CC) $(CFLAGS) test20121112.c uhx1_control.c sdb.c devtag-allinone.c lock.c printAsciiHex.c serial.c util.c datacollection.c freq_changer.c uhx1_commander.c -o $(BUILD_PATH)/$(BUILD_NAME) -lsqlite3 -L/usr/lib/i386-linux-gnu/
 
 # This will be called when running "make clean"
 clean:
