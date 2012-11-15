@@ -5,6 +5,7 @@ test/
 nbproject/
 dtest.c
 rd.c
+test20121112.c
 radiotunnel_vhf-event.log
 a.out
 
