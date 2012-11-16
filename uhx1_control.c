@@ -32,13 +32,11 @@
 #include "radio_conf.h"
 
 char *buffer;
-int startFrequency = 144000;
-char* device = "/dev/pts/5";
 
 int uhx1_setupChannels(int startFrequencyKhz, int step){
     
     //Open the serial port for communicating with uhx1 device
-    serial_openSerialPort(device, B115200, 50000, 50000);
+    serial_openSerialPort(get_progDevice(), B115200, 50000, 50000);
     
     buffer = uhx1_startChan(startFrequencyKhz);
     if(!strncmp("OK", buffer, 2)){
@@ -57,7 +55,7 @@ int uhx1_setupChannels(int startFrequencyKhz, int step){
 int uhx1_changeFrequency(int targetFrequency){
     int steps;
     //Open the serial port for communicating with uhx1 device
-    serial_openSerialPort(device, B115200, 50000, 50000);
+    serial_openSerialPort(get_progDevice(), B115200, 50000, 50000);
     steps = (targetFrequency-get_startFrequency())/CHANNEL_SPACING;
     if((targetFrequency % CHANNEL_SPACING) || steps < 0 || steps > MAX_CHANNEL){
         serial_closeSerialPort();

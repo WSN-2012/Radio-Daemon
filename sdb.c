@@ -33,7 +33,7 @@ int get_timeslot(int location, timeslot_t tslot){
 	sprintf(query, SQL_SELECT, location);
 
 	/*Open database*/
-	retval = sqlite3_open(DB_PATH, &db);
+	retval = sqlite3_open(get_db_path(), &db);
 	if(retval){
 		perror("\nCould not connect to db... exiting\n");
 		return 1;

@@ -8,7 +8,8 @@ SOURCES= 	devtag-allinone.c \
 			uhx1_commander.c \
 			uhx1_control.c \
 			sdb.c \
-			radiodaemon.c 
+			radiodaemon.c \
+			radio_conf.c
 
 # Project specific variables
 BUILD_PATH=build

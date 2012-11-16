@@ -10,18 +10,18 @@
 
 #define CONF_PATH "./rd.conf"
 
-int read_config(void);
-char* get_logfile(void);
-char* get_ipInfo(void);
-char* get_ifName(void);
-char* get_soundmodem_path(void);
-char* get_rt_path(void);
-int get_location(void);
-int get_mode(void);
-char* get_db_path(void);
-int get_startFrequency(void);
-char* get_dataDevice(void);
-char* get_progDevice(void);
+int read_config();
+char* get_logfile();
+char* get_ipInfo();
+char* get_ifName();
+char* get_soundmodem_path();
+char* get_rt_path();
+int get_location();
+int get_mode();
+char* get_db_path();
+int get_startFrequency();
+char* get_dataDevice();
+char* get_progDevice();
 
 #endif	/* RADIO_CONF_H */
 
