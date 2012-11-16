@@ -1,6 +1,7 @@
 # Project specific ignore 
 build/
 test/
+nbproject/
 .DS_Store
 sdb.sqlite3
 radiotunnel_vhf-event.log
