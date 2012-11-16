@@ -2,10 +2,7 @@
 build/
 test/
 .DS_Store
-nbproject/
-dtest.c
-rd.c
-test20121112.c
+sdb.sqlite3
 radiotunnel_vhf-event.log
 a.out
 
