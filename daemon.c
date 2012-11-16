@@ -29,12 +29,12 @@ Created on 22nd October 2012
 #include "uhx1_commander.h"
 #include "util.h"
 #include "datacollection.h"
-#include "freq_changer.h"
+#include "uhx1_control.h"
 
 #ifndef MAIN 
 #define NOFILE 3
 #define GWGEO 2
-#define SERDEV "/dev/pts/2"
+#define SERDEV "/dev/pts/10"
 #endif
 
 //init_daemon is used to initialize a daemon process running in the system background, which can hardly be affected by the foreground user. 
@@ -64,7 +64,6 @@ void init_daemon()
 	setsid(); 
 
 //Prevent child getting control of terminal
-
 	if (pid = fork()) 
 	{
 		exit(0);
@@ -94,134 +93,156 @@ int main()
 	init_daemon(); 
 
 	int gateway_geolocation; 
-	int timer_return;
-	int pid;
-	int cpid;
+	int pid_radiotunnel, pid_kill;
 	int retval_e;
 	int ref1, ref2, flag1, flag2;
-	int frequency;
+	int frequency = 0;
+	int freq_indicator;
 	char command[20];
 	char serial_device[30] = SERDEV;
 	struct timeslot timeslot;
-	time_t current_time;
-	time_t start_time, end_time;
+	time_t current_time, start_time, stop_time;
+	time_t secs_to_radio_on, secs_to_radio_down;
 	FILE *fp;
 
 	gateway_geolocation = GWGEO;
+//Set the starttime and endtime once raido daemon starts running
+	get_timeslot(gateway_geolocation, &timeslot);
+	start_time = timeslot.start_time;
+	stop_time = timeslot.stop_time;
+	current_time = time(NULL);
+	secs_to_radio_on = start_time - current_time;
+	secs_to_radio_down = stop_time - start_time;
+	
+	if ((fp = fopen("/tmp/radiodaemon.log", "a")) >= 0) 
+	{  
+		fprintf(fp, "%s\nGet next timeslot and working frequency for gateway at geolocation %d from spectrum database:\nnumber of secs left to establish radiotunnel:%d\nduration of the timeslot:%d\n", asctime(localtime(&current_time)), gateway_geolocation, secs_to_radio_on, secs_to_radio_down); 
+		fclose(fp); 	
+	}
+
+//Set the working frequency once raido daemon starts running
+	if (frequency != timeslot.frequency)
+	{
+		frequency = timeslot.frequency;
+		freq_indicator = 1;
+	}
+	else
+	{
+		freq_indicator = 0;
+	}
+
+	if ((fp = fopen("/tmp/radiodaemon.log", "a")) >= 0) 
+	{  
+		fprintf(fp, "frequency: %dKHz\n\n", frequency); 
+		fclose(fp); 	
+	}
 
 	while (1) 
 	{ 
+		sleep(secs_to_radio_on);
+		current_time = time(NULL);
+//Establish radiotunnel
+		pid_radiotunnel = fork();
+			
+		if (pid_radiotunnel == 0)
+		{
+				
+			if (freq_indicator)
+				{
+					int retval_changeFrequency = uhx1_changeFrequency(frequency);
+
+					if (!retval_changeFrequency)
+					{
+						if ((fp = fopen("/tmp/radiodaemon.log", "a")) >= 0) 
+						{  
+							fprintf(fp, "%s\nChange working frequency into %dHz\n\n", asctime(localtime(&current_time)), frequency); 
+							fclose(fp); 	
+						}
+					}
+
+				}
+
+			execl("/mnt/sharepoint/test/radiotunnel/radiotunnel", "/mnt/sharepoint/test/radiotunnel/radiotunnel", "vhf", "radio0", "10.0.0.1/24", SERDEV, NULL);
+		}
+
+		if (pid_radiotunnel > 0)
+		{
+			if ((fp = fopen("/tmp/radiodaemon.log", "a")) >= 0) 
+			{  
+				fprintf(fp, "%s\nEstablish radiotunnel. radiotunnel pid: %d daemon pid: %d\n\n", asctime(localtime(&current_time)), pid_radiotunnel, getpid()); 
+				fclose(fp); 				
+			}
+		}
+
+		if (pid_radiotunnel < 0)
+		{
+			if ((fp = fopen("/tmp/radiodaemon.log", "a")) >= 0) 
+			{  
+				fprintf(fp, "%s\nFailed establishing radiotunnel\n\n", asctime(localtime(&current_time))); 
+				fclose(fp); 				
+			}
+		}
+
+		sleep(secs_to_radio_down);
+		current_time = time(NULL);
+//Destroy radiotunnel
+		pid_kill = fork();
+
+		if (pid_kill == 0)
+		{
+			sprintf(command, "%d", pid_radiotunnel);		
+			execlp("kill", "kill", command, NULL);
+		}
+
+		if (pid_kill > 0)
+		{
+			if ((fp = fopen("/tmp/radiodaemon.log", "a")) >= 0) 
+			{  
+				fprintf(fp, "%s\nKill radiotunnel. kill pid: %d daemon pid: %d\n\n", asctime(localtime(&current_time)), pid_kill, getpid()); 
+				fclose(fp); 				
+			}
+		}
+
+		if (pid_kill < 0)
+		{
+			if ((fp = fopen("/tmp/radiodaemon.log", "a")) >= 0) 
+			{  
+				fprintf(fp, "%s\nFailed killing radiotunnel\n\n", asctime(localtime(&current_time))); 
+				fclose(fp); 				
+			}
+		}
+
 		sleep(1);
-		int retval = get_timeslot(gateway_geolocation, &timeslot);
+//Set the starttime and endtime once raido daemon starts running
+		get_timeslot(gateway_geolocation, &timeslot);
 		current_time = time(NULL);
 		start_time = timeslot.start_time;
-		end_time = timeslot.stop_time;
-		frequency = timeslot.frequency;
-
-//timer
-		if (current_time < start_time)
-		{
-			ref1 = 0;
-			flag1 = 0;
-			timer_return = -1;
-		}
-		else 
-		{
-			flag1 = 1;
-		
-			if (ref1 + flag1 == 1)
-			{
-				timer_return = 1;
-			}
-			else
-			{
-				timer_return = -1;
-			}
-		
-			ref1 = flag1;
-		}
-		
-		if (current_time < end_time)
-		{
-			ref2 = 1;
-			flag2 = 1;
-		}		
-		else 
-    	{
-    		flag2 = 0;
-
-			if (ref2 + flag2 == 1)
-			{
-				timer_return = 0;
-			}
-			else
-			{
-				timer_return = -1;
-			}
-			
-			ref2 = flag2;
+		stop_time = timeslot.stop_time;
+		secs_to_radio_on = start_time - current_time;
+		secs_to_radio_down = stop_time - start_time;
+	
+		if ((fp = fopen("/tmp/radiodaemon.log", "a")) >= 0) 
+		{  
+			fprintf(fp, "%s\nGet next timeslot and working frequency for gateway at geolocation %d from spectrum database:\nnumber of secs left to establish radiotunnel:%d\nduration of the timeslot:%d\n", asctime(localtime(&current_time)), gateway_geolocation, secs_to_radio_on, secs_to_radio_down); 
+			fclose(fp); 	
 		}
 
-		if((fp = fopen("/tmp/timerlog.log", "a")) >= 0) 
-			{  
-				fprintf(fp, "current time: %s(number of secs: %d)\n starttime(number of secs: %d)\n endtime(number of secs: %d)\n frequency: %d\n get_timeslot_return: %d\n timer_return: %d\n\n", asctime(localtime(&current_time)), current_time, start_time, end_time, frequency, retval, timer_return); 
-				fclose(fp); 	
-			} 
-
-//Establish radiotunnel
-		if (timer_return == 1)
+//Set the next working frequency
+		if (frequency != timeslot.frequency)
 		{
-			pid = fork();
-			
-			if (pid == 0)
-			{
-				//int retval_f = freq_changer(frequency, serial_device)；
-				retval_e = execl("/mnt/sharepoint/test/radiotunnel/radiotunnel", "/mnt/sharepoint/test/radiotunnel/radiotunnel", "vhf", "radio0", "10.0.0.1/24", SERDEV, NULL);
-				//execlp("gnome-terminal", "gnome-terminal", "-x", "/mnt/sharepoint/test/radiotunnel/radiotunnel", "vhf", "radio0", "10.0.0.1/24", SERDEV, NULL);
-			}
-
-			if (pid > 0)
-			{
-				if ((fp = fopen("/tmp/forklog.log", "a")) >= 0) 
-				{  
-					fprintf(fp, "Establishes radiotunnel at %s\npid of radiotunnel is %d, pid of daemon is %d\n\n", asctime(localtime(&current_time)), pid, getpid()); 
-					fclose(fp); 				
-				}
-			}
-
-			if (pid < 0)
-			{
-				if ((fp = fopen("/tmp/forklog.log", "a")) >= 0) 
-				{  
-					fprintf(fp, "forking failed at %s\n", asctime(localtime(&current_time))); 
-					fclose(fp); 				
-				}
-			}
-
+			frequency = timeslot.frequency;
+			freq_indicator = 1;
+		}
+		else
+		{
+			freq_indicator = 0;
 		}
 
-//Destroy radiotunnel
-		else if (timer_return == 0)
-		{
-			cpid = fork();
-
-			if (cpid == 0)
-			{
-				sprintf(command, "%d", pid);		
-				execlp("kill", "kill", command, NULL);
-			}
-
-			if (cpid > 0)
-			{
-				if ((fp = fopen("/tmp/test1.log", "a")) >= 0) 
-				{  
-					fprintf(fp, "Destroy radiotunnel at %s\npid of kill is %d, pid of daemon is %d\n\n", asctime(localtime(&current_time)), cpid, getpid()); 
-					fclose(fp); 				
-				}
-			}
-
+		if ((fp = fopen("/tmp/radiodaemon.log", "a")) >= 0) 
+		{  
+			fprintf(fp, "frequency: %dKHz\n\n", frequency); 
+			fclose(fp); 	
 		}
 		
 	} 
-	return 0; 
 }

@@ -30,9 +30,9 @@
 #include "datacollection.h"
 #include "uhx1_control.h"
 
-char buffer[15];
+char *buffer;
 int startFrequency = 144000;
-char* device = "/dev/ttyUSB0";
+char* device = "/dev/pts/5";
 
 int uhx1_setupChannels(int startFrequencyKhz, int step){
     
