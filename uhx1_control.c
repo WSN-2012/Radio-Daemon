@@ -29,6 +29,7 @@
 #include "util.h"
 #include "datacollection.h"
 #include "uhx1_control.h"
+#include "radio_conf.h"
 
 char *buffer;
 int startFrequency = 144000;
@@ -57,7 +58,7 @@ int uhx1_changeFrequency(int targetFrequency){
     int steps;
     //Open the serial port for communicating with uhx1 device
     serial_openSerialPort(device, B115200, 50000, 50000);
-    steps = (targetFrequency-startFrequency)/CHANNEL_SPACING;
+    steps = (targetFrequency-get_startFrequency())/CHANNEL_SPACING;
     if((targetFrequency % CHANNEL_SPACING) || steps < 0 || steps > MAX_CHANNEL){
         serial_closeSerialPort();
         return 1;
