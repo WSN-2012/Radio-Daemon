@@ -8,7 +8,7 @@
 #ifndef RADIO_CONF_H
 #define	RADIO_CONF_H
 
-#define CONF_PATH "./rd.conf"
+#define CONF_PATH "/mnt/sharepoint/rd.conf"
 
 int read_config();
 char* get_logfile();
