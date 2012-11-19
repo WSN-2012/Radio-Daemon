@@ -90,6 +90,7 @@ int main()
 //Ignore child ending signal, avoiding zombie process
 	signal(SIGCHLD, SIG_IGN); 	
 	init_daemon(); 
+    read_config();
  
 	int pid_radiotunnel, pid_kill;
 	int frequency = 0;
