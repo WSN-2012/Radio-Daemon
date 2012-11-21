@@ -20,6 +20,7 @@ Created on 22nd October 2012
 #include <sys/time.h>
 #include <sys/select.h>
 #include <stdint.h>
+#include <sys/wait.h>
 
 #include "sdb.h"
 #include "devtag-allinone.h"
@@ -35,6 +36,8 @@ Created on 22nd October 2012
 #ifndef MAIN 
 #define NOFILE 3
 #endif
+
+int pid_radiotunnel;
 
 //init_daemon is used to initialize a daemon process running in the system background, which can hardly be affected by the foreground user. 
 //In the following steps, a normal process will be adapted into a daemon:
@@ -83,16 +86,39 @@ void init_daemon()
 //Reset file creation mask which is inherited from the father:
 	umask(0);  
 	return; 
-	} 
+	}
+
+void exit_daemon(int exit_val) {
+    FILE* fp;
+    time_t current_time = time(NULL);
+    if ((fp = fopen(get_logfile(), "a")) >= 0) {
+        fprintf(fp, "%s\nExiting radiodaemon. Trying to kill radiotunnel and close serial ports\n\n", asctime(localtime(&current_time)));
+        fclose(fp);
+    }
+    if(pid_radiotunnel){
+        kill(pid_radiotunnel, SIGTERM);
+        waitpid(pid_radiotunnel, NULL, 0);
+    }
+    serial_closeSerialPort();
+    current_time = time(NULL);
+    if ((fp = fopen(get_logfile(), "a")) >= 0) {
+        fprintf(fp, "%s\nRadiotunnel and serial port closed, now exiting daemon\n\n", asctime(localtime(&current_time)));
+        fclose(fp);
+    }
+    exit(0);
+}
+
 
 int main() 
 { 
 //Ignore child ending signal, avoiding zombie process
 	signal(SIGCHLD, SIG_IGN); 	
+        signal(SIGHUP, exit_daemon);
+        signal(SIGINT, exit_daemon);
 	init_daemon(); 
     read_config();
  
-	int pid_radiotunnel, pid_kill;
+	int pid_kill;
 	int frequency = 0;
 	int freq_indicator;
 	char command[20];
@@ -195,6 +221,7 @@ int main()
 				fprintf(fp, "%s\nKill radiotunnel. kill pid: %d daemon pid: %d\n\n", asctime(localtime(&current_time)), pid_kill, getpid()); 
 				fclose(fp); 				
 			}
+                        pid_radiotunnel = 0;
 		}
 
 		if (pid_kill < 0)
