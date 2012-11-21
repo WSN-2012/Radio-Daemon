@@ -65,6 +65,7 @@ void init_daemon()
 //Prevent child getting control of terminal
 	if (pid = fork()) 
 	{
+		printf("%d",pid);
 		exit(0);
 	}
 	else if (pid < 0)
@@ -142,19 +143,18 @@ int main()
 		{
 				
 			if (freq_indicator)
+			{
+				int retval_changeFrequency = uhx1_changeFrequency(frequency);
+
+				if (!retval_changeFrequency)
 				{
-					int retval_changeFrequency = uhx1_changeFrequency(frequency);
-
-					if (!retval_changeFrequency)
-					{
-						if ((fp = fopen(get_logfile(), "a")) >= 0) 
-						{  
-							fprintf(fp, "%s\nChange working frequency into %dHz\n\n", asctime(localtime(&current_time)), frequency); 
-							fclose(fp); 	
-						}
+					if ((fp = fopen(get_logfile(), "a")) >= 0) 
+					{  
+						fprintf(fp, "%s\nChange working frequency into %dHz\n\n", asctime(localtime(&current_time)), frequency); 
+						fclose(fp); 	
 					}
-
 				}
+			}
 
 			execl(get_rt_path(), get_rt_path(), "vhf", get_ifName(), get_ipInfo(), get_dataDevice(), NULL);
 		}

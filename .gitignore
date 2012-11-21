@@ -6,7 +6,6 @@ nbproject/
 sdb.sqlite3
 radiotunnel_vhf-event.log
 a.out
-radiodaemon.h
 
 # Compiled Object files
 *.slo
