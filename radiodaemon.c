@@ -89,23 +89,24 @@ void init_daemon()
 	return; 
 	}
 
-void exit_daemon(int exit_val) {
+void exit_daemon(int exit_val) 
+{
     FILE* fp;
     time_t current_time = time(NULL);
-    if ((fp = fopen(get_logfile(), "a")) >= 0) {
-        fprintf(fp, "%s\nExiting radiodaemon. Trying to kill radiotunnel and close serial ports\n\n", asctime(localtime(&current_time)));
+    
+    if ((fp = fopen(get_logfile(), "a")) >= 0) 
+    {
+        fprintf(fp, "%s\nExit radiodaemon. Kill radiotunnel and close serial ports\n\n", asctime(localtime(&current_time)));
         fclose(fp);
     }
-    if(pid_radiotunnel){
+    
+    if(pid_radiotunnel)
+    {
         kill(pid_radiotunnel, SIGTERM);
         waitpid(pid_radiotunnel, NULL, 0);
     }
+    
     serial_closeSerialPort();
-    current_time = time(NULL);
-    if ((fp = fopen(get_logfile(), "a")) >= 0) {
-        fprintf(fp, "%s\nRadiotunnel and serial port closed, now exiting daemon\n\n", asctime(localtime(&current_time)));
-        fclose(fp);
-    }
     exit(0);
 }
 
@@ -114,8 +115,9 @@ int main()
 { 
 //Ignore child ending signal, avoiding zombie process
 	signal(SIGCHLD, SIG_IGN); 	
-        signal(SIGHUP, exit_daemon);
-        signal(SIGINT, exit_daemon);
+    signal(SIGHUP, exit_daemon);
+    signal(SIGINT, exit_daemon);
+    signal(SIGTERM, exit_daemon);
 	init_daemon(); 
     read_config();
  
@@ -133,7 +135,16 @@ int main()
 	stop_time = timeslot.stop_time;
 	current_time = time(NULL);
 	secs_to_radio_on = start_time - current_time;
-	secs_to_radio_down = stop_time - start_time;
+
+	if (secs_to_radio_on > 0)
+	{
+		secs_to_radio_down = stop_time - start_time;
+	}
+	else
+	{
+		secs_to_radio_on = 0;
+		secs_to_radio_down = stop_time - current_time;
+	}
 	
 	if ((fp = fopen(get_logfile(), "a")) >= 0) 
 	{  
@@ -221,7 +232,8 @@ int main()
 				fprintf(fp, "%s\nKill radiotunnel. kill pid: %d daemon pid: %d\n\n", asctime(localtime(&current_time)), pid_kill, getpid()); 
 				fclose(fp); 				
 			}
-                        pid_radiotunnel = 0;
+            
+            pid_radiotunnel = 0;
 		}
 
 		if (pid_kill < 0)
