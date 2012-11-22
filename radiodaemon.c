@@ -37,7 +37,7 @@ Created on 22nd October 2012
 #define NOFILE 3
 #endif
 
-int pid_radiotunnel;
+int pid_radio;
 
 //init_daemon is used to initialize a daemon process running in the system background, which can hardly be affected by the foreground user. 
 //In the following steps, a normal process will be adapted into a daemon:
@@ -96,14 +96,14 @@ void exit_daemon(int exit_val)
     
     if ((fp = fopen(get_logfile(), "a")) >= 0) 
     {
-        fprintf(fp, "%s\nExit radiodaemon. Kill radiotunnel and close serial ports\n\n", asctime(localtime(&current_time)));
+        fprintf(fp, "%s\nExit radiodaemon. Kill radio and close serial ports\n\n", asctime(localtime(&current_time)));
         fclose(fp);
     }
     
-    if(pid_radiotunnel)
+    if(pid_radio)
     {
-        kill(pid_radiotunnel, SIGTERM);
-        waitpid(pid_radiotunnel, NULL, 0);
+        kill(pid_radio, SIGTERM);
+        waitpid(pid_radio, NULL, 0);
     }
     
     serial_closeSerialPort();
@@ -125,10 +125,26 @@ int main()
 	int frequency = 0;
 	int freq_indicator;
 	char command[20];
+	char radio_mode[20];
 	struct timeslot timeslot;
 	time_t current_time, start_time, stop_time;
 	time_t secs_to_radio_on, secs_to_radio_down;
 	FILE *fp;
+
+    if (get_mode() == 1)
+    {
+    	strcpy(radio_mode, "radiotunnel");
+    }
+    if (get_mode() == 2)
+    {
+    	strcpy(radio_mode, "soundmodem");
+    }
+    if ((fp = fopen(get_logfile(), "a")) >= 0) 
+	{  
+		fprintf(fp, "radio transmission mode: %s\n\n", radio_mode); 
+		fclose(fp); 	
+	}
+
 //Set the starttime and endtime once raido daemon starts running
 	get_timeslot(get_location(), &timeslot);
 	start_time = timeslot.start_time;
@@ -148,7 +164,7 @@ int main()
 	
 	if ((fp = fopen(get_logfile(), "a")) >= 0) 
 	{  
-		fprintf(fp, "%s\nGet next timeslot and working frequency for gateway at geolocation %d from spectrum database:\nnumber of secs left to establish radiotunnel:%d\nduration of the timeslot:%d\n", asctime(localtime(&current_time)), get_location(), secs_to_radio_on, secs_to_radio_down); 
+		fprintf(fp, "%s\nGet next timeslot and working frequency for gateway at geolocation %d from spectrum database:\nnumber of secs left to establish %s:%d\nduration of the timeslot:%d\n", asctime(localtime(&current_time)), get_location(), radio_mode, secs_to_radio_on, secs_to_radio_down); 
 		fclose(fp); 	
 	}
 
@@ -173,55 +189,63 @@ int main()
 	{ 
 		sleep(secs_to_radio_on);
 		current_time = time(NULL);
-//Establish radiotunnel
-		pid_radiotunnel = fork();
+//Establish radio
+		pid_radio = fork();
 			
-		if (pid_radiotunnel == 0)
+		if (pid_radio == 0)
 		{
-				
-			if (freq_indicator)
+			if (get_mode() == 1)
 			{
-				int retval_changeFrequency = uhx1_changeFrequency(frequency);
-
-				if (!retval_changeFrequency)
+				if (freq_indicator)
 				{
-					if ((fp = fopen(get_logfile(), "a")) >= 0) 
-					{  
-						fprintf(fp, "%s\nChange working frequency into %dHz\n\n", asctime(localtime(&current_time)), frequency); 
-						fclose(fp); 	
+					int retval_changeFrequency = uhx1_changeFrequency(frequency);
+
+					if (!retval_changeFrequency)
+					{
+						if ((fp = fopen(get_logfile(), "a")) >= 0) 
+						{  
+							fprintf(fp, "%s\nChange working frequency into %dHz\n\n", asctime(localtime(&current_time)), frequency); 
+							fclose(fp); 	
+						}
 					}
 				}
+
+				execl(get_rt_path(), get_rt_path(), "vhf", get_ifName(), get_ipInfo(), get_dataDevice(), NULL);
 			}
 
-			execl(get_rt_path(), get_rt_path(), "vhf", get_ifName(), get_ipInfo(), get_dataDevice(), NULL);
+			if (get_mode() == 2)
+			{
+				execl("soundmodem", NULL);
+			}
+
 		}
 
-		if (pid_radiotunnel > 0)
+		if (pid_radio > 0)
 		{
 			if ((fp = fopen(get_logfile(), "a")) >= 0) 
 			{  
-				fprintf(fp, "%s\nEstablish radiotunnel. radiotunnel pid: %d daemon pid: %d\n\n", asctime(localtime(&current_time)), pid_radiotunnel, getpid()); 
+				fprintf(fp, "%s\nEstablish %s. %s pid: %d daemon pid: %d\n\n", asctime(localtime(&current_time)), radio_mode, radio_mode, pid_radio, getpid()); 
 				fclose(fp); 				
 			}
 		}
 
-		if (pid_radiotunnel < 0)
+		if (pid_radio < 0)
 		{
 			if ((fp = fopen(get_logfile(), "a")) >= 0) 
 			{  
-				fprintf(fp, "%s\nFailed establishing radiotunnel\n\n", asctime(localtime(&current_time))); 
+				fprintf(fp, "%s\nFailed establishing %s\n\n", asctime(localtime(&current_time)), radio_mode); 
 				fclose(fp); 				
 			}
 		}
 
 		sleep(secs_to_radio_down);
 		current_time = time(NULL);
-//Destroy radiotunnel
+//Destroy radio
 		pid_kill = fork();
 
 		if (pid_kill == 0)
 		{
-			sprintf(command, "%d", pid_radiotunnel);		
+			sprintf(command, "%d", pid_radio);		
 			execlp("kill", "kill", command, NULL);
 		}
 
@@ -229,18 +253,18 @@ int main()
 		{
 			if ((fp = fopen(get_logfile(), "a")) >= 0) 
 			{  
-				fprintf(fp, "%s\nKill radiotunnel. kill pid: %d daemon pid: %d\n\n", asctime(localtime(&current_time)), pid_kill, getpid()); 
+				fprintf(fp, "%s\nKill %s. kill pid: %d daemon pid: %d\n\n", asctime(localtime(&current_time)), radio_mode, pid_kill, getpid()); 
 				fclose(fp); 				
 			}
             
-            pid_radiotunnel = 0;
+            pid_radio = 0;
 		}
 
 		if (pid_kill < 0)
 		{
 			if ((fp = fopen(get_logfile(), "a")) >= 0) 
 			{  
-				fprintf(fp, "%s\nFailed killing radiotunnel\n\n", asctime(localtime(&current_time))); 
+				fprintf(fp, "%s\nFailed killing %s\n\n", asctime(localtime(&current_time)), radio_mode); 
 				fclose(fp); 				
 			}
 		}
@@ -256,7 +280,7 @@ int main()
 	
 		if ((fp = fopen(get_logfile(), "a")) >= 0) 
 		{  
-			fprintf(fp, "%s\nGet next timeslot and working frequency for gateway at geolocation %d from spectrum database:\nnumber of secs left to establish radiotunnel:%d\nduration of the timeslot:%d\n", asctime(localtime(&current_time)), get_location(), secs_to_radio_on, secs_to_radio_down); 
+			fprintf(fp, "%s\nGet next timeslot and working frequency for gateway at geolocation %d from spectrum database:\nnumber of secs left to establish %s:%d\nduration of the timeslot:%d\n", asctime(localtime(&current_time)), get_location(), radio_mode, secs_to_radio_on, secs_to_radio_down); 
 			fclose(fp); 	
 		}
 
