@@ -215,7 +215,7 @@ int main()
 
 			if (get_mode() == 2)
 			{
-				execl("echo `date` >> /var/log/soundmodem.log");
+				execl("echo `date` >> /var/log/soundmodem.log", NULL);
 				execl("soundmodem >> /var/log/soundmodem.log", NULL);
 			}
 
