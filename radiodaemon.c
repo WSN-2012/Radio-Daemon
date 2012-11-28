@@ -215,7 +215,7 @@ int main()
 
 			if (get_mode() == 2)
 			{
-				execl("soundmodem", NULL);
+				execlp("soundmodem", "soundmodem", NULL);
 			}
 
 		}
