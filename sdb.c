@@ -30,7 +30,12 @@ int get_timeslot(int location, timeslot_t tslot){
 	tslot->is_changed = 0;
 
 	/*Insert location into the sql query string*/
-	sprintf(query, SQL_SELECT, location);
+	if(get_mode!=2){
+                sprintf(query, SQL_SELECT, location);
+        }
+        else{
+            sprintf(query, SQL_STATIC_FREQ_SELECT, location, get_soundmodem_freq);
+        }
 
 	/*Open database*/
 	retval = sqlite3_open(get_db_path(), &db);

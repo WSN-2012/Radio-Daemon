@@ -6,11 +6,13 @@ Created on 19th October 2012
 #ifndef SDB_H_
 #define SDB_H_
 
-/*SQL Query string for getting a timeslot and frequency*/
+/*SQL Query strings for getting a timeslot and frequency. First is for dynamic frequencies
+ Second is for static frequencies*/
 #define SQL_SELECT "SELECT frequency, strftime('%%s',start_time, 'utc'), strftime('%%s',stop_time, 'utc') FROM KistaSDB_2012 WHERE location = %d AND strftime('%%s', 'now','localtime') <= strftime('%%s', stop_time) ORDER BY start_time ASC LIMIT 1"
+#define SQL_STATIC_FREQ_SELECT "SELECT frequency, strftime('%%s',start_time, 'utc'), strftime('%%s',stop_time, 'utc') FROM KistaSDB_2012 WHERE location = %d AND strftime('%%s', 'now','localtime') <= strftime('%%s', stop_time) AND frequency = %d ORDER BY start_time ASC LIMIT 1"
 
 /*Max length of the SQL Query string*/
-#define QUERY_LEN 250
+#define QUERY_LEN 300
 
 /*Format of the timeslot*/
 struct timeslot {
