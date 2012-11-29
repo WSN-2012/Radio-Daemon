@@ -34,7 +34,7 @@ int get_timeslot(int location, timeslot_t tslot){
                 sprintf(query, SQL_SELECT, location);
         }
         else{
-            sprintf(query, SQL_STATIC_FREQ_SELECT, location, get_soundmodem_freq);
+            sprintf(query, SQL_STATIC_FREQ_SELECT, location, get_soundmodem_freq());
         }
 
 	/*Open database*/
