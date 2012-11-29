@@ -20,6 +20,7 @@ int get_location();
 int get_mode();
 char* get_db_path();
 int get_startFrequency();
+int get_soundmodem_freq();
 char* get_dataDevice();
 char* get_progDevice();
 

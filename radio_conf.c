@@ -13,6 +13,7 @@
 char* uhx1_progDevice;  //device path for uhx1 programming port
 char* uhx1_dataDevice;  //device path for uhx1 data port
 int startFrequency;     //frequency for channel 16 in the uhx1
+int soundmodem_freq;    //frequency for soundmodem 
 char* db_path;          //path to the sqlite3 database file
 int mode = -1;          //mode of operation for the radio. 0 for radiotunnel, 1 for soundmodem
 int geoLoc = -1;        //location that the station is located at
@@ -32,6 +33,10 @@ char* get_dataDevice(){
 
 int get_startFrequency(){
     return startFrequency;
+}
+
+int get_soundmodem_freq(){
+    return soundmodem_freq;
 }
 
 char* get_db_path(){
@@ -73,7 +78,7 @@ int read_config(){
     char* attribute;
     char* value;
     char* allowedAttributes[] = {"uhx1_progDevice", "uhx1_dataDevice", "ip", "ifName", "soundmodem_path", "radiotun_path",
-                                "geolocation", "mode", "db", "startFrequency", "logfile"};
+                                "geolocation", "mode", "db", "startFrequency", "soundmodemFrequency", "logfile"};
     
     FILE* conffile = fopen(CONF_PATH,"r");
     if(conffile == NULL){
@@ -86,7 +91,7 @@ int read_config(){
         
         if(line[0] == '#' || !(attribute)) continue;
         
-        for(list_index = 0; list_index < 11; list_index++){
+        for(list_index = 0; list_index < 12; list_index++){
             if(!strcmp(allowedAttributes[list_index], attribute)){
                 is_valid = 1;
                 break;
@@ -138,6 +143,10 @@ int read_config(){
                 if(!startFrequency) return -1;
                 break;
             case 10:
+                soundmodem_freq = atoi(value);
+                if(!soundmodem_freq) return -1;
+                break; 
+            case 11:
                 logfile_path = (char*) malloc((sizeof(char)*strlen(value))+1);
                 strcpy(logfile_path, value);
                 break; 
