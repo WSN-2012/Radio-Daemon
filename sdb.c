@@ -30,7 +30,7 @@ int get_timeslot(int location, timeslot_t tslot){
 	tslot->is_changed = 0;
 
 	/*Insert location into the sql query string*/
-	if(get_mode!=2){
+	if(get_mode()!=2){
                 sprintf(query, SQL_SELECT, location);
         }
         else{
