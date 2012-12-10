@@ -16,9 +16,8 @@ Radiodaemon is a background process used to establish/destroy radio link and ope
 To run radiodaemon you should have a linux-like OS, Voyage etc. Besides, radiotunnel and soundmodem should be installed in the system. More information on installation and configuration found in Manual for setting up environment for radiodaemon in gateway or base station and Dual-platform configuration in Voyage (available at http://ttaportal.org/menu/projects/wsn/fall-2012/documents/).
 
 ### Buidling
-The BPF should be built into a jar which should be imported into the application/service implementing it. 
 Follow the below steps to build it.
 
-1.  `git clone https://github.com/WSN-2012/BPF.git`
-2.  `cd BPF`
-3.  `ant`
+1.  `git clone https://github.com/WSN-2012/Radio-Daemon.git`
+2.  `cd Radio-Daemon`
+3.  `make`
