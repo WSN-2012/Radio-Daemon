@@ -9,66 +9,71 @@
 
 #include "radio_conf.h"
 
+//introduction on the following vaiables found in rd.conf
+int run_place;  
+int radio_mode;  
+char* radio_if;     
+char* ip_gw;    
+char* ip_bs;         
+char* uhx1_prog_device;         
+char* uhx1_data_device;       
+int geolocation;    
+int start_frequency;         
+char* db_path;        
+char* radiotun_path;         
+char* log_path;     
+int soundmodem_frequency;
 
-char* uhx1_progDevice;  //device path for uhx1 programming port
-char* uhx1_dataDevice;  //device path for uhx1 data port
-int startFrequency;     //frequency for channel 16 in the uhx1
-int soundmodem_freq;    //frequency for soundmodem 
-char* db_path;          //path to the sqlite3 database file
-int mode = -1;          //mode of operation for the radio. 0 for radiotunnel, 1 for soundmodem
-int geoLoc = -1;        //location that the station is located at
-char* radiotun_path;    //path to radiotunnel binary
-char* soundmodem_path;  //path to soundmodem binary
-char* ifaceName;        //name of the network interface created by radiotunnel
-char* ipInfo;           //Ip adress and netmask of the link, in the format of x.x.x.x/yy
-char* logfile_path;     //path to logfile
-
-char* get_progDevice(){
-    return uhx1_progDevice;
+int get_run_place(){
+    return run_place;
 }
 
-char* get_dataDevice(){
-    return uhx1_dataDevice;
+int get_radio_mode(){
+    return radio_mode;
 }
 
-int get_startFrequency(){
-    return startFrequency;
+char* get_radio_if(){
+    return radio_if;
 }
 
-int get_soundmodem_freq(){
-    return soundmodem_freq;
+char* get_ip_gw(){
+    return ip_gw;
+}
+
+char* get_ip_bs(){
+    return ip_bs;
+}
+
+char* get_uhx1_prog_device(){
+    return uhx1_prog_device;
+}
+
+char* get_uhx1_data_device(){
+    return uhx1_data_device;
+}
+
+int get_geolocation(){
+    return geolocation;
+}
+
+int get_start_frequency(){
+    return start_frequency;
 }
 
 char* get_db_path(){
     return db_path;
 }
 
-int get_mode(){
-    return mode;
-}
-
-int get_location(){
-    return geoLoc;
-}
-
-char* get_rt_path(){
+char* get_radiotun_path(){
     return radiotun_path;
 }
 
-char* get_soundmodem_path(){
-    return soundmodem_path;
+char* get_log_path(){
+    return log_path;
 }
 
-char* get_ifName(){
-    return ifaceName;
-}
-
-char* get_ipInfo(){
-    return ipInfo;
-}
-
-char* get_logfile(){
-    return logfile_path;
+int get_soundmodem_frequency(){
+    return soundmodem_frequency;
 }
 
 int read_config(){
@@ -77,8 +82,8 @@ int read_config(){
     char line[512];
     char* attribute;
     char* value;
-    char* allowedAttributes[] = {"uhx1_progDevice", "uhx1_dataDevice", "ip", "ifName", "soundmodem_path", "radiotun_path",
-                                "geolocation", "mode", "db", "startFrequency", "soundmodemFrequency", "logfile"};
+    char* allowedAttributes[] = {"run_place", "radio_mode", "radio_if", "ip_gw", "ip_bs", "uhx1_prog_device", "uhx1_data_device", 
+                                 "geolocation", "start_frequency", "db_path", "radiotun_path", "log_path", "soundmodem_frequency"};
     
     FILE* conffile = fopen(CONF_PATH,"r");
     if(conffile == NULL){
@@ -91,7 +96,7 @@ int read_config(){
         
         if(line[0] == '#' || !(attribute)) continue;
         
-        for(list_index = 0; list_index < 12; list_index++){
+        for(list_index = 0; list_index < 13; list_index++){
             if(!strcmp(allowedAttributes[list_index], attribute)){
                 is_valid = 1;
                 break;
@@ -103,53 +108,57 @@ int read_config(){
         
         switch(list_index){
             case 0:
-                uhx1_progDevice = (char*) malloc((sizeof(char)*strlen(value))+1);
-                strcpy(uhx1_progDevice, value);
+                run_place = atoi(value);
+                if(!run_place) return -1;
                 break;
             case 1:
-                uhx1_dataDevice = (char*) malloc((sizeof(char)*strlen(value))+1);
-                strcpy(uhx1_dataDevice, value);
+                radio_mode = atoi(value);
+                if(!radio_mode) return -1;
                 break;
             case 2:
-                ipInfo = (char*) malloc((sizeof(char)*strlen(value))+1);
-                strcpy(ipInfo, value);
+                radio_if = (char*) malloc((sizeof(char)*strlen(value))+1);
+                strcpy(radio_if, value);
                 break;
             case 3:
-                ifaceName = (char*) malloc((sizeof(char)*strlen(value))+1);
-                strcpy(ifaceName, value);
+                ip_gw = (char*) malloc((sizeof(char)*strlen(value))+1);
+                strcpy(ip_gw, value);
                 break;
             case 4:
-                soundmodem_path = (char*) malloc((sizeof(char)*strlen(value))+1);
-                strcpy(soundmodem_path, value);
+                ip_bs = (char*) malloc((sizeof(char)*strlen(value))+1);
+                strcpy(ip_bs, value);
                 break;
             case 5:
-                radiotun_path = (char*) malloc((sizeof(char)*strlen(value))+1);
-                strcpy(radiotun_path, value);
+                uhx1_prog_device = (char*) malloc((sizeof(char)*strlen(value))+1);
+                strcpy(uhx1_prog_device, value);
                 break;
             case 6:
-                geoLoc = atoi(value);
-                if(!geoLoc) return -1;
+                uhx1_data_device = (char*) malloc((sizeof(char)*strlen(value))+1);
+                strcpy(uhx1_data_device, value);
                 break;
             case 7:
-                mode = atoi(value);
-                if(!mode) return -1;
+                geolocation = atoi(value);
+                if(!geolocation) return -1;
                 break;
             case 8:
+                start_frequency = atoi(value);
+                if(!start_frequency) return -1;
+                break;
+            case 9:
                 db_path = (char*) malloc((sizeof(char)*strlen(value))+1);
                 strcpy(db_path, value);
                 break;
-            case 9:
-                startFrequency = atoi(value);
-                if(!startFrequency) return -1;
-                break;
             case 10:
-                soundmodem_freq = atoi(value);
-                if(!soundmodem_freq) return -1;
+                radiotun_path = (char*) malloc((sizeof(char)*strlen(value))+1);
+                strcpy(radiotun_path, value);
                 break; 
             case 11:
-                logfile_path = (char*) malloc((sizeof(char)*strlen(value))+1);
-                strcpy(logfile_path, value);
+                log_path = (char*) malloc((sizeof(char)*strlen(value))+1);
+                strcpy(log_path, value);
                 break; 
+            case 12:
+                soundmodem_frequency = atoi(value);
+                if(!soundmodem_frequency) return -1;
+                break;
         }
         
     }

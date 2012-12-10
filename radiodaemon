@@ -2,7 +2,7 @@
 # chkconfig: 345 20 80
 # description: radiodaemon, wsn team Fall 2012
 
-DAEMON_PATH="/root/Radio-Daemon/build"
+DAEMON_PATH="/mnt/sharepoint/build"
 
 DAEMON=radiodaemon
 DAEMONOPTS=""

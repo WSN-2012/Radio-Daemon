@@ -10,19 +10,19 @@
 
 #define CONF_PATH "/root/Radio-Daemon/rd.conf"
 
-int read_config();
-char* get_logfile();
-char* get_ipInfo();
-char* get_ifName();
-char* get_soundmodem_path();
-char* get_rt_path();
-int get_location();
-int get_mode();
+int get_run_place();
+int get_radio_mode();
+char* get_radio_if();
+char* get_ip_gw();
+char* get_ip_bs();
+char* get_uhx1_prog_device();
+char* get_uhx1_data_device();
+int get_geolocation();
+int get_start_frequency();
 char* get_db_path();
-int get_startFrequency();
-int get_soundmodem_freq();
-char* get_dataDevice();
-char* get_progDevice();
+char* get_radiotun_path();
+char* get_log_path();
+int get_soundmodem_frequency();
 
 #endif	/* RADIO_CONF_H */
 

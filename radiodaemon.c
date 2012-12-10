@@ -94,7 +94,7 @@ void exit_daemon(int exit_val)
     FILE* fp;
     time_t current_time = time(NULL);
     
-    if ((fp = fopen(get_logfile(), "a")) >= 0) 
+    if ((fp = fopen(get_log_path(), "a")) >= 0) 
     {
         fprintf(fp, "%s\nExit radiodaemon. Kill radio and close serial ports\n\n", asctime(localtime(&current_time)));
         fclose(fp);
@@ -122,31 +122,58 @@ int main()
     read_config();
  
 	int pid_kill;
+	int pid_delete_default_gw;
+	int pid_add_default_gw;
 	int frequency = 0;
 	int freq_indicator;
 	char command[20];
+	char run_place[20];
 	char radio_mode[20];
+	char sm_bs_ip[20];
 	struct timeslot timeslot;
 	time_t current_time, start_time, stop_time;
 	time_t secs_to_radio_on, secs_to_radio_down;
 	FILE *fp;
 
-    if (get_mode() == 1)
+//values initialization
+    if (get_run_place() == 1)
+    {
+    	strcpy(run_place, "gateway");
+    }
+    else if (get_run_place() == 2)
+    {
+    	strcpy(run_place, "base station");
+    }
+    if (get_radio_mode() == 1)
     {
     	strcpy(radio_mode, "radiotunnel");
     }
-    if (get_mode() == 2)
+    else if (get_radio_mode() == 2)
     {
     	strcpy(radio_mode, "soundmodem");
+    	strcpy(sm_bs_ip, get_ip_bs());
+    	int i = 0;
+    	char sm_bs_ip1[20];    	
+    	while (i < sizeof(sm_bs_ip))
+    	{            
+            if (sm_bs_ip[i] == '/')
+            {
+                sm_bs_ip1[i] = '\0';
+                break;
+            }
+    		sm_bs_ip1[i] = sm_bs_ip[i];
+    		i = i+1;
+    	}
+    	strcpy(sm_bs_ip, sm_bs_ip1);
     }
-    if ((fp = fopen(get_logfile(), "a")) >= 0) 
+    if ((fp = fopen(get_log_path(), "a")) >= 0) 
 	{  
-		fprintf(fp, "radio transmission mode: %s\n\n", radio_mode); 
+		fprintf(fp, "radiodaemon is running on %s\n\nradio transmission mode: %s\n\n", run_place, radio_mode); 
 		fclose(fp); 	
 	}
 
 //Set the starttime and endtime once raido daemon starts running
-	get_timeslot(get_location(), &timeslot);
+	get_timeslot(get_geolocation(), &timeslot);
 	start_time = timeslot.start_time;
 	stop_time = timeslot.stop_time;
 	current_time = time(NULL);
@@ -162,9 +189,9 @@ int main()
 		secs_to_radio_down = stop_time - current_time;
 	}
 	
-	if ((fp = fopen(get_logfile(), "a")) >= 0) 
+	if ((fp = fopen(get_log_path(), "a")) >= 0) 
 	{  
-		fprintf(fp, "%s\nGet next timeslot and working frequency for gateway at geolocation %d from spectrum database:\nnumber of secs left to establish %s:%d\nduration of the timeslot:%d\n", asctime(localtime(&current_time)), get_location(), radio_mode, secs_to_radio_on, secs_to_radio_down); 
+		fprintf(fp, "%s\nGet next timeslot and working frequency for gateway at geolocation %d from spectrum database:\nnumber of secs left to establish %s:%d\nduration of the timeslot:%d\n", asctime(localtime(&current_time)), get_geolocation(), radio_mode, secs_to_radio_on, secs_to_radio_down); 
 		fclose(fp); 	
 	}
 
@@ -179,9 +206,9 @@ int main()
 		freq_indicator = 0;
 	}
 
-	if ((fp = fopen(get_logfile(), "a")) >= 0) 
+	if ((fp = fopen(get_log_path(), "a")) >= 0) 
 	{  
-		fprintf(fp, "frequency: %dKHz\n\n", frequency); 
+		fprintf(fp, "frequency: %dkHz\n\n", frequency); 
 		fclose(fp); 	
 	}
 
@@ -194,7 +221,7 @@ int main()
 			
 		if (pid_radio == 0)
 		{
-			if (get_mode() == 1)
+			if (get_radio_mode() == 1)
 			{
 				if (freq_indicator)
 				{
@@ -202,7 +229,7 @@ int main()
 
 					if (!retval_changeFrequency)
 					{
-						if ((fp = fopen(get_logfile(), "a")) >= 0) 
+						if ((fp = fopen(get_log_path(), "a")) >= 0) 
 						{  
 							fprintf(fp, "%s\nChange working frequency into %dHz\n\n", asctime(localtime(&current_time)), frequency); 
 							fclose(fp); 	
@@ -210,10 +237,18 @@ int main()
 					}
 				}
 
-				execl(get_rt_path(), get_rt_path(), "vhf", get_ifName(), get_ipInfo(), get_dataDevice(), NULL);
+				if (get_run_place() == 1)
+				{
+					execl(get_radiotun_path(), get_radiotun_path(), "vhf", get_radio_if(), get_ip_gw(), get_uhx1_data_device(), NULL);
+				}
+				else if (get_run_place() == 2)
+				{
+					execl(get_radiotun_path(), get_radiotun_path(), "vhf", get_radio_if(), get_ip_bs(), get_uhx1_data_device(), NULL);
+				}
+				
 			}
 
-			if (get_mode() == 2)
+			if (get_radio_mode() == 2)
 			{
 				execlp("soundmodem", "soundmodem", NULL);
 			}
@@ -222,16 +257,42 @@ int main()
 
 		if (pid_radio > 0)
 		{
-			if ((fp = fopen(get_logfile(), "a")) >= 0) 
+			if ((fp = fopen(get_log_path(), "a")) >= 0) 
 			{  
 				fprintf(fp, "%s\nEstablish %s. %s pid: %d daemon pid: %d\n\n", asctime(localtime(&current_time)), radio_mode, radio_mode, pid_radio, getpid()); 
 				fclose(fp); 				
+			}
+
+//If radiodaemon is running on gateway, delete the default gw and add the radio interface on base station as a new default gw
+			if (get_run_place() == 1)
+			{
+				pid_delete_default_gw = fork();
+
+				if (pid_delete_default_gw == 0)
+				{
+					execlp("route", "route", "delete", "default", NULL);
+				}
+
+				sleep(1);
+				pid_add_default_gw = fork();
+
+				if (pid_add_default_gw == 0)
+				{
+					execlp("route", "route", "add", "default", "gateway", sm_bs_ip, get_radio_if(), NULL);
+				}
+
+				if ((fp = fopen(get_log_path(), "a")) >= 0) 
+				{  
+					fprintf(fp, "On the gateway, delete default gw and add interface %s of the base station as a new default gw", get_radio_if()); 
+					fclose(fp); 				
+				}
+
 			}
 		}
 
 		if (pid_radio < 0)
 		{
-			if ((fp = fopen(get_logfile(), "a")) >= 0) 
+			if ((fp = fopen(get_log_path(), "a")) >= 0) 
 			{  
 				fprintf(fp, "%s\nFailed establishing %s\n\n", asctime(localtime(&current_time)), radio_mode); 
 				fclose(fp); 				
@@ -251,7 +312,7 @@ int main()
 
 		if (pid_kill > 0)
 		{
-			if ((fp = fopen(get_logfile(), "a")) >= 0) 
+			if ((fp = fopen(get_log_path(), "a")) >= 0) 
 			{  
 				fprintf(fp, "%s\nKill %s. kill pid: %d daemon pid: %d\n\n", asctime(localtime(&current_time)), radio_mode, pid_kill, getpid()); 
 				fclose(fp); 				
@@ -262,7 +323,7 @@ int main()
 
 		if (pid_kill < 0)
 		{
-			if ((fp = fopen(get_logfile(), "a")) >= 0) 
+			if ((fp = fopen(get_log_path(), "a")) >= 0) 
 			{  
 				fprintf(fp, "%s\nFailed killing %s\n\n", asctime(localtime(&current_time)), radio_mode); 
 				fclose(fp); 				
@@ -271,16 +332,16 @@ int main()
 
 		sleep(1);
 //Set the starttime and endtime once raido daemon starts running
-		get_timeslot(get_location(), &timeslot);
+		get_timeslot(get_geolocation(), &timeslot);
 		current_time = time(NULL);
 		start_time = timeslot.start_time;
 		stop_time = timeslot.stop_time;
 		secs_to_radio_on = start_time - current_time;
 		secs_to_radio_down = stop_time - start_time;
 	
-		if ((fp = fopen(get_logfile(), "a")) >= 0) 
+		if ((fp = fopen(get_log_path(), "a")) >= 0) 
 		{  
-			fprintf(fp, "%s\nGet next timeslot and working frequency for gateway at geolocation %d from spectrum database:\nnumber of secs left to establish %s:%d\nduration of the timeslot:%d\n", asctime(localtime(&current_time)), get_location(), radio_mode, secs_to_radio_on, secs_to_radio_down); 
+			fprintf(fp, "%s\nGet next timeslot and working frequency for gateway at geolocation %d from spectrum database:\nnumber of secs left to establish %s:%d\nduration of the timeslot:%d\n", asctime(localtime(&current_time)), get_geolocation(), radio_mode, secs_to_radio_on, secs_to_radio_down); 
 			fclose(fp); 	
 		}
 
@@ -295,9 +356,9 @@ int main()
 			freq_indicator = 0;
 		}
 
-		if ((fp = fopen(get_logfile(), "a")) >= 0) 
+		if ((fp = fopen(get_log_path(), "a")) >= 0) 
 		{  
-			fprintf(fp, "frequency: %dKHz\n\n", frequency); 
+			fprintf(fp, "frequency: %dkHz\n\n", frequency); 
 			fclose(fp); 	
 		}
 		
