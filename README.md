@@ -3,20 +3,17 @@
 ## General
 ### About
 This is a project made by (or partially by) WSN-Team 2012 in the course CSD, which is part of the [Technology Transfer Alliance](http://ttaportal.org/).
+
 ### Purpose
-One of the goals of the project is tobe able to send data upstream from rural areas and to do this DTN communication has been used.
+To offer an uplink for wireless sensors in remote areas cut off from the Internet, a good way is to use the white space of radio band and transmit data over radio at an available frequency. A spectrum database (SDB) will be used to restore pairs of timeslot and frequency for the gateway at a specific geolocation to work accordingly.
+In the gateway, a linux-based program is supposed to handle SDB-lookingup and radio transmission.
 
-We wanted something that could be used in all devices for handling the DTN communication. That is why we created a platform-independent framework for Delay Tolerant Network (DTN) communication. This project will provide this as a framework for different platforms. 
 ### Description
-This project is a continuation of the [Bytewalla project](https://code.google.com/p/dtn-bytewalla/). This project differs from that in that we made a framework which is platform-independent based on the code provided by the bytewalla team. Also a lot of cleaning up and bug fixing has been done (believe us...).
-
-The BPF is a framework used in all our DTN devices as a base for all DTN communication. The framework cannot work on it own. It needs to be implemented with a application/service, which are device specific. To implement your own application/service using the BPF you will need to look into the interfaces defined within the `se.kth.ssvl.tslab.wsn.general.bpf`. However there are already services implementing the BPF in our [organization page](https://github.com/WSN-2012).
-
+Radiodaemon is a background process used to establish/destroy radio link and open/close radio interface at specific times, which are acquired by querying spectrum database (SDB). In radiodaemon either of the two alternatives will be called to establish radio link: radiotunnel[https://github.com/WSN-2012/radiotunnel] and soundmodem.
 
 ## Build & Install
-
 ### Prerequisites
-You will need to have ant to compile this in an easy way. To get ant look into how to install it on your platform.
+To run radiodaemon you should have a linux-like OS, Voyage etc. Besides, radiotunnel and soundmodem should be installed in the system. More information on installation and configuration found in Manual for setting up environment for radiodaemon in gateway or base station and Dual-platform configuration in Voyage (available at http://ttaportal.org/menu/projects/wsn/fall-2012/documents/).
 
 ### Buidling
 The BPF should be built into a jar which should be imported into the application/service implementing it. 
