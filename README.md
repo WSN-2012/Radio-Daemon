@@ -2,5 +2,5 @@ General
 ============
 Build
 ============
-configuration
+Configuration
 ============
