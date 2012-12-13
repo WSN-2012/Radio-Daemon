@@ -266,19 +266,12 @@ int main()
 //If radiodaemon is running on gateway, delete the default gw and add the radio interface on base station as a new default gw
 			if (get_run_place() == 1)
 			{
-				pid_delete_default_gw = fork();
-
-				if (pid_delete_default_gw == 0)
-				{
-					execlp("route", "route", "delete", "default", NULL);
-				}
-
 				sleep(1);
 				pid_add_default_gw = fork();
 
 				if (pid_add_default_gw == 0)
 				{
-					execlp("route", "route", "add", "default", "gateway", sm_bs_ip, get_radio_if(), NULL);
+					execlp("route", "route", "add", "5.44.203.73/32", "gateway", sm_bs_ip, get_radio_if(), NULL);
 				}
 
 				if ((fp = fopen(get_log_path(), "a")) >= 0) 
