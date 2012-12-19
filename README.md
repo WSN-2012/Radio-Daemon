@@ -22,6 +22,15 @@ Follow the below steps to build it.
 2.  `cd Radio-Daemon`
 3.  `make`
 
+## Starting & Stopping
+Follow the below steps to start it.
+
+1.  `cd Radio-Daemon`
+2.  `./radiodaemon start`
+
+Similiarly, to restart, stop or check the status of the daemon, run
+`./radiodaemon stop` `./radiodaemon restart` or `./radiodaemon status`
+
 ## License
 Copyright 2012 KTH
 
