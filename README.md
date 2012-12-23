@@ -22,6 +22,12 @@ Follow the below steps to build it.
 2.  `cd Radio-Daemon`
 3.  `make`
 
+### Configuration
+
+1.  In radiodaemon (script file), correct DAEMON_PATH. It equals "/root/Radio-Daemon/build" by default.
+2.  In radio_conf.h, correct CONF_PATH. It equals "/root/Radio-Daemon/rd.conf" by default.
+3.  In rd.conf, follow the instructions and modify the values accordingly.
+
 ## Starting & Stopping
 Follow the below steps to start it.
 
